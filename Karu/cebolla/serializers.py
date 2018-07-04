@@ -15,11 +15,13 @@ class PaymentTypeSerializer(serializers.ModelSerializer):
 		fields = ('id', 'paymentTypeName')
 
 class IngredientSerializer(serializers.ModelSerializer):
+
 	ingredientType = serializers.ReadOnlyField(source='ingredientType.typeName')
-    	paymentType = serializers.ReadOnlyField(source='paymentType.paymentTypeName')
-    	class Meta:
-        	model = Ingredient
-        	fields = ('id', 'name','ingredientType','paymentType','criticalCondition','durationTime','maxAmount')
+	paymentType = serializers.ReadOnlyField(source='paymentType.paymentTypeName')
+	
+	class Meta:
+			model = Ingredient
+			fields = ('id', 'name','ingredientType','paymentType','criticalCondition','durationTime','maxAmount')
 
 class LocalSerializer(serializers.ModelSerializer):
     	
@@ -60,36 +62,75 @@ class DischargeSerializer(serializers.ModelSerializer):
 
 class ItemSerializerP(serializers.ModelSerializer):
 	ingredientLocal = serializers.PrimaryKeyRelatedField(queryset=IngredientLocal.objects.all())
+	itemPrice = serializers.IntegerField(read_only=True)
 	class Meta:
 		model = Item
-		fields = ('itemPrice','ingredientLocal','amount')
+		fields = ('ingredientLocal','amount','itemPrice')
+		
+	# def create(self,validated_data):
+		# ingredientLocalId = validated_data.pop('ingredientLocal')
+		# itemPrice = IngredientLocal.objects.get(pk=ingredientLocalId).price
+		# item = Item.objects.create(**validated_data, itemPrice=itemPrice)
+		# return item
 
 #Serializers used in order to create an entire purchase with orders and items
 class OrderSerializerP(serializers.ModelSerializer):
 #	algo = serializers.IntegerField()
-	items = ItemSerializerP(many=True)
+	items = ItemSerializerP(many=True, required=True)
+	orderPrice = serializers.IntegerField(read_only=True)
 	class Meta:
 		model = Order
 		fields = ('orderPrice','cardId','items')
+		
+	def validate_items(self, items):
+		if len(items) == 0:
+			raise serializers.ValidationError('se requiere al menos un item')
+		return items
 
 class PurchaseSerializer(serializers.ModelSerializer):
 #	local = serializers.ReadOnlyField(source='local.location')
 	local = serializers.PrimaryKeyRelatedField(queryset=Local.objects.all(),write_only=True)
 	orders = OrderSerializerP(many=True)
+	totalPrice = serializers.IntegerField(read_only=True)
+	
 	class Meta:
 		model = Purchase
-		fields = ('totalPrice','timestamp','local','orders')
+		fields = ('timestamp','local','orders','totalPrice')
 
 	def create(self,validated_data):
+	
 		orders_data = validated_data.pop('orders')
 #		print(validated_data)
-		purchase = Purchase.objects.create(**validated_data)	
-		for order_data in orders_data:
-			items_data = order_data.pop('items')
+		purchase = Purchase.objects.create(**validated_data)
+		totalPrice = 0
+		
+		for order_data in orders_data:	
+		
+			items_data = order_data.pop('items')			
 			order = Order.objects.create(purchase=purchase, **order_data)
+			orderPrice = 0
+			
 			for item_data in items_data:
-				Item.objects.create(order=order,**item_data)
+			
+				ingredientLocal = item_data['ingredientLocal']
+				amount = item_data['amount']
+				itemPrice = ingredientLocal.price
+				orderPrice += itemPrice*amount
+				Item.objects.create(order=order, itemPrice=itemPrice,**item_data)
+				
+			order.orderPrice = orderPrice
+			totalPrice += orderPrice
+			order.save()
+		
+		purchase.totalPrice = totalPrice
+		purchase.save()
+		
 		return purchase
+		
+	def validate_orders(self, orders):
+		if len(orders) == 0:
+			raise serializers.ValidationError('se requiere al menos una compra')
+		return orders
 
 #class PurchaseSerializer(serializers.Serializer):
 #	totalPrice = serializers.IntegerField()
@@ -107,11 +148,6 @@ class PurchaseSerializer(serializers.ModelSerializer):
 #			Order.objects.create(purchase=purchase, **order_data)
 #		return purchase
 
-class ItemSerializerP(serializers.ModelSerializer):
-	itemLocalId = serializers.IntegerField()
-	class Meta:
-		model = Item
-		fields = ('amount','itemPrice')
 
 class OrderSerializer(serializers.ModelSerializer):
 	purchase = serializers.ReadOnlyField(source='purchase.id')
@@ -145,23 +181,23 @@ class LocalUserSerializer(serializers.ModelSerializer):
 			 
 
 class UserSerializer(serializers.ModelSerializer):
-#    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-    localUser = LocalUserSerializer()
+	#    email = serializers.EmailField()
+	password = serializers.CharField(write_only=True)
+	localUser = LocalUserSerializer()
 
-    class Meta:
-        model = User
-        fields = ('id', 'username','password','localUser')
+	class Meta:
+		model = User
+		fields = ('id', 'username','password','localUser')
 	#fields = ('id', 'username','email','password')
 
-    def create(self,validated_data):
-	user = User.objects.create(username=validated_data['username'])
-	user.set_password(validated_data['password'])
-	
-	user.save()
-	localUser_data = validated_data.pop('localUser') 
-	localUser = LocalUser.objects.create(user=user,**localUser_data)
-	return user
+	def create(self,validated_data):
+		user = User.objects.create(username=validated_data['username'])
+		user.set_password(validated_data['password'])
+
+		user.save()
+		localUser_data = validated_data.pop('localUser') 
+		localUser = LocalUser.objects.create(user=user,**localUser_data)
+		return user
 
 
 

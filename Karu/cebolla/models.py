@@ -13,8 +13,8 @@ class PaymentType(models.Model):
 
 class Ingredient(models.Model):
 	name = models.CharField(max_length=255) 
-	ingredientType= models.ForeignKey(IngredientType)
-	paymentType = models.ForeignKey(PaymentType)
+	ingredientType= models.ForeignKey(IngredientType, on_delete=models.PROTECT)
+	paymentType = models.ForeignKey(PaymentType, on_delete=models.PROTECT)
 	criticalCondition= models.IntegerField()
 	durationTime = models.TimeField()
 	maxAmount = models.IntegerField()
@@ -23,8 +23,8 @@ class Local(models.Model):
 	location = models.TextField()
 
 class IngredientLocal(models.Model):
-	ingredient = models.ForeignKey(Ingredient)
-	local = models.ForeignKey(Local)
+	ingredient = models.ForeignKey(Ingredient, on_delete=models.PROTECT)
+	local = models.ForeignKey(Local, on_delete=models.PROTECT)
 	price = models.IntegerField()
 	current_amount = models.IntegerField()
 	offer_price = models.IntegerField()
@@ -34,42 +34,46 @@ class IngredientLocal(models.Model):
 		return '%s %s' % (self.local.location, self.ingredient.name)
 
 class Entry(models.Model):
-	ingredientLocal = models.ForeignKey(IngredientLocal)
+	ingredientLocal = models.ForeignKey(IngredientLocal, on_delete=models.PROTECT)
 	amount = models.IntegerField()
 	timestamp = models.DateTimeField()
 
 class Discharge(models.Model):
-        ingredientLocal = models.ForeignKey(IngredientLocal)
+
+	ingredientLocal = models.ForeignKey(IngredientLocal, on_delete=models.PROTECT)
 	amount = models.IntegerField()
 	timestamp = models.DateTimeField()
 
 class Purchase(models.Model):
-	local = models.ForeignKey(Local)
+
+	local = models.ForeignKey(Local, on_delete=models.PROTECT)
 	timestamp = models.DateTimeField(auto_now_add=True)
-	totalPrice = models.IntegerField()
+	totalPrice = models.IntegerField(default=0)
 
 class Order(models.Model):
-	purchase = models.ForeignKey(Purchase,related_name='orders')
-	orderPrice = models.IntegerField()
+
+	purchase = models.ForeignKey(Purchase,related_name='orders', on_delete=models.PROTECT)
+	orderPrice = models.IntegerField(default=0)
 	cardId = models.IntegerField()
 
 class Item(models.Model):
-	order = models.ForeignKey(Order,related_name='items')
-	ingredientLocal = models.ForeignKey(IngredientLocal,related_name='items')
+
+	order = models.ForeignKey(Order,related_name='items', on_delete=models.PROTECT)
+	ingredientLocal = models.ForeignKey(IngredientLocal,related_name='items', on_delete=models.PROTECT)
 	amount = models.IntegerField()
 	itemPrice = models.IntegerField()
 
 class GlobalAdmin(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='globalAdmin')
 	def clean(self):
-		print "here"
+		print("here")
 		if LocalUser.objects.filter(user=self.user).exists():
-			print "here2"
+			print("here2")
 			raise ValidationError("El usuario ya tiene un rol local asignado")
 
 class LocalUser(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='localUser')
-	local = models.ForeignKey(Local,related_name='localUsers')	
+	local = models.ForeignKey(Local,related_name='localUsers', on_delete=models.PROTECT)	
 	GLOBAL = 'G'
 	ADMIN = 'A'
 	KITCHEN = 'K'
