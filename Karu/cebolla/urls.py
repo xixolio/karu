@@ -6,15 +6,15 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'paymentType',views.PaymentTypeViewSet)
 router.register(r'ingredientType',views.IngredientTypeViewSet)
-router.register(r'local',views.LocalViewSet)
+#router.register(r'local',views.LocalViewSet)
 router.register(r'ingredient',views.IngredientViewSet)
-router.register(r'ingredientLocal',views.IngredientLocalViewSet)
-router.register(r'entry',views.EntryViewSet)
-router.register(r'discharge',views.DischargeViewSet)
+#router.register(r'ingredientLocal',views.IngredientLocalViewSet)
+#router.register(r'entry',views.EntryViewSet)
+#router.register(r'discharge',views.DischargeViewSet)
 router.register(r'purchase',views.PurchaseViewSet)
 router.register(r'order',views.OrderViewSet)
 router.register(r'item',views.ItemViewSet)
-router.register(r'user',views.UserViewSet)
+#router.register(r'user',views.UserViewSet)
 
 urlpatterns = [
 #    url(r'^ingredientType/$', views.IngredientTypeList.as_view()),

@@ -71,9 +71,9 @@ class IngredientViewSet(viewsets.ModelViewSet):
 #    queryset = Local.objects.all()
 #    serializer_class = LocalSerializer
 
-class LocalViewSet(viewsets.ModelViewSet):
-    queryset = Local.objects.all()
-    serializer_class = LocalSerializer
+# class LocalViewSet(viewsets.ModelViewSet):
+    # queryset = Local.objects.all()
+    # serializer_class = LocalSerializer
 
 #class IngredientLocalList(generics.ListCreateAPIView):
 #   permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -88,45 +88,45 @@ class LocalViewSet(viewsets.ModelViewSet):
 #    queryset = IngredientLocal.objects.all()
 #    serializer_class = IngredientLocalSerializer
 
-class IngredientLocalViewSet(viewsets.ModelViewSet):
-	permission_classes = (permissions.IsAuthenticated,)
-	queryset = IngredientLocal.objects.all()
-	serializer_class = IngredientLocalSerializer
+# class IngredientLocalViewSet(viewsets.ModelViewSet):
+	# permission_classes = (permissions.IsAuthenticated,)
+	# queryset = IngredientLocal.objects.all()
+	# serializer_class = IngredientLocalSerializer
     
     
-	def perform_create(self, serializer):
-		ingredient = Ingredient.objects.get(id=self.request.data['ingredientId'])
-		local = Local.objects.get(id=self.request.data['localId'])
-		serializer.save(ingredient=ingredient,local=local)
+	# def perform_create(self, serializer):
+		# ingredient = Ingredient.objects.get(id=self.request.data['ingredientId'])
+		# local = Local.objects.get(id=self.request.data['localId'])
+		# serializer.save(ingredient=ingredient,local=local)
 		
-	def get_queryset(self):
-		localUser = self.request.user.localUser
+	# def get_queryset(self):
+		# localUser = self.request.user.localUser
 		
-		if localUser.job != 'G':
-			return IngredientLocal.objects.filter(local=localUser.local)
-		else:
-			return IngredientLocal.objects.all()
+		# if localUser.job != 'G':
+			# return IngredientLocal.objects.filter(local=localUser.local)
+		# else:
+			# return IngredientLocal.objects.all()
 
-class EntryViewSet(viewsets.ModelViewSet):
-	queryset = Entry.objects.all()
-	serializer_class = EntrySerializer
-	def perform_create(self, serializer):
-		ingredientLocal = IngredientLocal.objects.get(id=self.request.data['ingredientLocalId'])
-		serializer.save(ingredientLocal=ingredientLocal)
+# class EntryViewSet(viewsets.ModelViewSet):
+	# queryset = Entry.objects.all()
+	# serializer_class = EntrySerializer
+	# def perform_create(self, serializer):
+		# ingredientLocal = IngredientLocal.objects.get(id=self.request.data['ingredientLocalId'])
+		# serializer.save(ingredientLocal=ingredientLocal)
 
-class DischargeViewSet(viewsets.ModelViewSet):
-	queryset = Discharge.objects.all()
-	serializer_class = DischargeSerializer
+# class DischargeViewSet(viewsets.ModelViewSet):
+	# queryset = Discharge.objects.all()
+	# serializer_class = DischargeSerializer
 	
-	def perform_create(self,serializer):
-			ingredientLocal = IngredientLocal.objects.get(id=self.request.data['ingredientLocalId'])
-			serializer.save(ingredientLocal=ingredientLocal)	
+	# def perform_create(self,serializer):
+			# ingredientLocal = IngredientLocal.objects.get(id=self.request.data['ingredientLocalId'])
+			# serializer.save(ingredientLocal=ingredientLocal)	
 
 class PurchaseViewSet(viewsets.ModelViewSet):
 	queryset = Purchase.objects.all()
 	serializer_class = PurchaseSerializer
 	def perform_create(self,serializer):
-		local = Local.objects.get(id=self.request.data['localId'])
+		#local = Local.objects.get(id=self.request.data['localId'])
 		serializer.save(local=local)
     
 class OrderViewSet(viewsets.ModelViewSet):
@@ -145,9 +145,9 @@ class ItemViewSet(viewsets.ModelViewSet):
 		localIngredient = LocalIngredient.objects.get(id=self.request.data['localIngredientId'])
 		serializer.save(order=order,localIngredient=localIngredient)
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# class UserViewSet(viewsets.ModelViewSet):
+    # queryset = User.objects.all()
+    # serializer_class = UserSerializer
 
 
 
