@@ -123,11 +123,11 @@ class DischargeViewSet(viewsets.ModelViewSet):
 			serializer.save(ingredientLocal=ingredientLocal)	
 
 class PurchaseViewSet(viewsets.ModelViewSet):
-    queryset = Purchase.objects.all()
-    serializer_class = PurchaseSerializer
-#    def perform_create(self,serializer):
-#	local = Local.objects.get(id=self.request.data['localId'])
-#	serializer.save(local=local)
+	queryset = Purchase.objects.all()
+	serializer_class = PurchaseSerializer
+	def perform_create(self,serializer):
+		local = Local.objects.get(id=self.request.data['localId'])
+		serializer.save(local=local)
     
 class OrderViewSet(viewsets.ModelViewSet):
 	queryset = Order.objects.all()

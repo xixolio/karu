@@ -31,7 +31,7 @@ class IngredientLocal(models.Model):
 	@property
 	def generic_name(self):
 		"returns a generic name for the object, made of the local location and ingredient name"
-		return '%s %s' % (self.local.location, self.ingredient.name)
+		return '%s' % (self.ingredient.name)
 
 class Entry(models.Model):
 	ingredientLocal = models.ForeignKey(IngredientLocal, on_delete=models.PROTECT)
@@ -62,6 +62,9 @@ class Item(models.Model):
 	ingredientLocal = models.ForeignKey(IngredientLocal,related_name='items', on_delete=models.PROTECT)
 	amount = models.IntegerField()
 	itemPrice = models.IntegerField()
+	
+	class Meta:
+		unique_together = ["order", "ingredientLocal"]
 
 class GlobalAdmin(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='globalAdmin')

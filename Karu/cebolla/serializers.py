@@ -61,8 +61,9 @@ class DischargeSerializer(serializers.ModelSerializer):
 		return Discharge.objects.create(**validated_data)
 
 class ItemSerializerP(serializers.ModelSerializer):
+	# gets object based on its primary key
 	ingredientLocal = serializers.PrimaryKeyRelatedField(queryset=IngredientLocal.objects.all())
-	itemPrice = serializers.IntegerField(read_only=True)
+	#itemPrice = serializers.IntegerField(read_only=True)
 	class Meta:
 		model = Item
 		fields = ('ingredientLocal','amount','itemPrice')
@@ -112,9 +113,8 @@ class PurchaseSerializer(serializers.ModelSerializer):
 			
 			for item_data in items_data:
 			
-				ingredientLocal = item_data['ingredientLocal']
+				itemPrice = item_data['itemPrice']
 				amount = item_data['amount']
-				itemPrice = ingredientLocal.price
 				orderPrice += itemPrice*amount
 				Item.objects.create(order=order, itemPrice=itemPrice,**item_data)
 				
@@ -149,19 +149,22 @@ class PurchaseSerializer(serializers.ModelSerializer):
 #		return purchase
 
 
-class OrderSerializer(serializers.ModelSerializer):
-	purchase = serializers.ReadOnlyField(source='purchase.id')
-	class Meta:
-		model = Order
-		fields = ('orderPrice','cardId','purchase')
 
 class ItemSerializer(serializers.ModelSerializer):
-	order = serializers.ReadOnlyField(source='order.id')
+	#order = serializers.ReadOnlyField(source='order.id')
 	localIngredient = serializers.ReadOnlyField(source='ingredientLocal.generic_name')
 	class Meta:
 		model = Item
 		fields = ('order','localIngredient','amount','itemPrice')
+		fields = ('localIngredient','amount','itemPrice')
 
+class OrderSerializer(serializers.ModelSerializer):
+	purchase = serializers.ReadOnlyField(source='purchase.id')	
+	items = ItemSerializer(many=True, read_only=True)
+	class Meta:
+		model = Order
+		fields = ('orderPrice','cardId','purchase','items')
+		
 class LocalUserSerializer(serializers.ModelSerializer):
 	local = serializers.PrimaryKeyRelatedField(queryset=Local.objects.all())
 	job = serializers.CharField()
