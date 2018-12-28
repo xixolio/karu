@@ -25,7 +25,7 @@ SECRET_KEY = '@bayp(bjg)5lp_wf)&$ku18)x4=8()ot4$@_m2o)zurqy+nn7-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition

@@ -16,13 +16,13 @@ class PaymentTypeSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
 
-	ingredientType = serializers.ReadOnlyField(source='ingredientType.typeName')
-	paymentType = serializers.ReadOnlyField(source='paymentType.paymentTypeName')
+	#ingredientType = serializers.ReadOnlyField(source='ingredientType.typeName')
+	#paymentType = serializers.ReadOnlyField(source='paymentType.paymentTypeName')
 	
 	class Meta:
 			model = Ingredient
 			#fields = ('id', 'name','ingredientType','paymentType','criticalCondition','durationTime','maxAmount')
-			fields = ('id', 'name','ingredientType','paymentType','price')
+			fields = ('id', 'name','price','scale')
 
 # class LocalSerializer(serializers.ModelSerializer):
     	
@@ -67,7 +67,7 @@ class ItemSerializerP(serializers.ModelSerializer):
 	#itemPrice = serializers.IntegerField(read_only=True)
 	class Meta:
 		model = Item
-		fields = ('ingredient','amount','itemPrice')
+		fields = ('id','ingredient','amount','itemPrice')
 		
 	# def create(self,validated_data):
 		# ingredientLocalId = validated_data.pop('ingredientLocal')
@@ -82,7 +82,7 @@ class OrderSerializerP(serializers.ModelSerializer):
 	orderPrice = serializers.IntegerField(read_only=True)
 	class Meta:
 		model = Order
-		fields = ('orderPrice','cardId','items')
+		fields = ('id','orderPrice','cardId','items')
 		
 	def validate_items(self, items):
 		if len(items) == 0:
@@ -92,12 +92,12 @@ class OrderSerializerP(serializers.ModelSerializer):
 class PurchaseSerializer(serializers.ModelSerializer):
 #	local = serializers.ReadOnlyField(source='local.location')
 #	local = serializers.PrimaryKeyRelatedField(queryset=Local.objects.all(),write_only=True)
-	orders = OrderSerializerP(many=True)
+	orders = OrderSerializerP(many=True, required = True)
 	totalPrice = serializers.IntegerField(read_only=True)
 	
 	class Meta:
 		model = Purchase
-		fields = ('timestamp','orders','totalPrice')
+		fields = ('id','timestamp','orders','totalPrice')
 
 	def create(self,validated_data):
 	
@@ -117,7 +117,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
 				itemPrice = item_data['itemPrice']
 				amount = item_data['amount']
 				orderPrice += itemPrice*amount
-				Item.objects.create(order=order, itemPrice=itemPrice,**item_data)
+				Item.objects.create(order=order,**item_data)
 				
 			order.orderPrice = orderPrice
 			totalPrice += orderPrice

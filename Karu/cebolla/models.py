@@ -13,9 +13,10 @@ class PaymentType(models.Model):
 
 class Ingredient(models.Model):
 	name = models.CharField(max_length=255, unique = True) 
-	ingredientType= models.ForeignKey(IngredientType, on_delete=models.PROTECT)
-	paymentType = models.ForeignKey(PaymentType, on_delete=models.PROTECT)
+	ingredientType= models.ForeignKey(IngredientType, on_delete=models.PROTECT, blank = True, null = True)
+	#paymentType = models.ForeignKey(PaymentType, on_delete=models.PROTECT)
 	price = models.IntegerField()
+	scale = models.IntegerField(default = 0)
 	#criticalCondition= models.IntegerField()
 	#durationTime = models.TimeField()
 	#maxAmount = models.IntegerField()
@@ -54,15 +55,15 @@ class Purchase(models.Model):
 	timestamp = models.DateTimeField(auto_now_add=True)
 	totalPrice = models.IntegerField(default=0)
 	
-	def save(self, *args, **kwargs):
+	# def save(self, *args, **kwargs):
 		
-		totalPrice = 0
+		# totalPrice = 0
 		
-		for order in self.orders.all():
-			totalPrice += order.orderPrice
+		# for order in self.orders.all():
+			# totalPrice += order.orderPrice
 			
-		self.totalPrice = totalPrice
-		super(Purchase, self).save(*args, **kwargs)
+		# self.totalPrice = totalPrice
+		# super(Purchase, self).save(*args, **kwargs)
 
 class Order(models.Model):
 
@@ -72,13 +73,8 @@ class Order(models.Model):
 	
 	def save(self, *args, **kwargs):
 		
-		orderPrice = 0
-		
-		for item in self.items.all():
-			orderPrice += item.itemPrice*item.amount
-			
-		self.orderPrice = orderPrice
-		super(Order, self).save(*args, **kwargs)
+		self.purchase.totalPrice += self.orderPrice
+		super(Order, self).save(*args, **kwargs) 
 
 class Item(models.Model):
 
@@ -89,6 +85,12 @@ class Item(models.Model):
 	
 	class Meta:
 		unique_together = ["order", "ingredient"]
+		
+	def save(self, *args, **kwargs):
+		
+		self.order.orderPrice += self.itemPrice
+			
+		super(Item, self).save(*args, **kwargs)
 
 # class GlobalAdmin(models.Model):
 	# user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='globalAdmin')
