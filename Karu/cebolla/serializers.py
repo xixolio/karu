@@ -25,7 +25,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 			fields = ('id', 'name','price','scale')
 			
 	def validate_scale(self, scale):
-		if scale != 0:
+		if scale > 0:
 			if Ingredient.objects.filter(scale = scale).exists():
 				query = Ingredient.objects.filter(scale = scale)
 				print(self)
