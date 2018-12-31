@@ -73,7 +73,8 @@ class Order(models.Model):
 	purchase = models.ForeignKey(Purchase,related_name='orders', on_delete=models.PROTECT)
 	orderPrice = models.IntegerField(default=0)
 	rfID = models.IntegerField()
-	ongoing = models.BooleanField()
+	ongoing = models.BooleanField(default = False)
+	receiving = models.PositiveIntegerField(default =0)
 	
 	#def save(self, *args, **kwargs):
 		
