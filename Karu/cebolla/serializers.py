@@ -23,6 +23,18 @@ class IngredientSerializer(serializers.ModelSerializer):
 			model = Ingredient
 			#fields = ('id', 'name','ingredientType','paymentType','criticalCondition','durationTime','maxAmount')
 			fields = ('id', 'name','price','scale')
+			
+	def validate_scale(self, scale):
+		if scale != 0:
+			if Ingredient.objects.filter(scale = scale).exists():
+				query = Ingredient.objects.filter(scale = scale)
+				print(self)
+				if len(query) > 1:
+					raise serializers.ValidationError('Dos ingredientes asignados a la misma pesa.')
+				elif query[0].id != self.initial_data['id']:
+					raise serializers.ValidationError('Dos ingredientes asignados a la misma pesa.')
+		return scale
+		
 
 # class LocalSerializer(serializers.ModelSerializer):
     	
@@ -82,7 +94,7 @@ class OrderSerializerP(serializers.ModelSerializer):
 	orderPrice = serializers.IntegerField(read_only=True)
 	class Meta:
 		model = Order
-		fields = ('id','orderPrice','cardId','items')
+		fields = ('id','orderPrice','rfID','items','ongoing')
 		
 	def validate_items(self, items):
 		if len(items) == 0:

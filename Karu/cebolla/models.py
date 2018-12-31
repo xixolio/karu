@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.exceptions import ValidationError
 
 class IngredientType(models.Model):
 	typeName = models.CharField(max_length=255, unique = True) 
@@ -24,7 +24,10 @@ class Ingredient(models.Model):
 	def generic_name(self):
 		 "returns a generic name for the object, made of the local location and ingredient name"
 		 return '%s' % (self.ingredient.name)
+		 
+		
 
+	
 # class Local(models.Model):
 	# location = models.TextField()
 
@@ -69,12 +72,13 @@ class Order(models.Model):
 
 	purchase = models.ForeignKey(Purchase,related_name='orders', on_delete=models.PROTECT)
 	orderPrice = models.IntegerField(default=0)
-	cardId = models.IntegerField()
+	rfID = models.IntegerField()
+	ongoing = models.BooleanField()
 	
-	def save(self, *args, **kwargs):
+	#def save(self, *args, **kwargs):
 		
-		self.purchase.totalPrice += self.orderPrice
-		super(Order, self).save(*args, **kwargs) 
+	#	self.purchase.totalPrice += self.orderPrice
+	#	super(Order, self).save(*args, **kwargs) 
 
 class Item(models.Model):
 
