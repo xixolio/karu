@@ -17,6 +17,7 @@ class Ingredient(models.Model):
 	#paymentType = models.ForeignKey(PaymentType, on_delete=models.PROTECT)
 	price = models.IntegerField()
 	scale = models.IntegerField(default = 0)
+	label = models.TextField(default ='')
 	#criticalCondition= models.IntegerField()
 	#durationTime = models.TimeField()
 	#maxAmount = models.IntegerField()
