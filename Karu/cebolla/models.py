@@ -58,24 +58,16 @@ class Purchase(models.Model):
 
 	timestamp = models.DateTimeField(auto_now_add=True)
 	totalPrice = models.IntegerField(default=0)
-	
-	# def save(self, *args, **kwargs):
-		
-		# totalPrice = 0
-		
-		# for order in self.orders.all():
-			# totalPrice += order.orderPrice
-			
-		# self.totalPrice = totalPrice
-		# super(Purchase, self).save(*args, **kwargs)
+
 
 class Order(models.Model):
 
 	purchase = models.ForeignKey(Purchase,related_name='orders', on_delete=models.PROTECT)
 	orderPrice = models.IntegerField(default=0)
-	rfID = models.IntegerField()
-	ongoing = models.BooleanField(default = False)
-	receiving = models.PositiveIntegerField(default =0)
+	name = models.TextField(default = 'defecto')
+	#rfID = models.IntegerField()
+	#ongoing = models.BooleanField(default = False)
+	#receiving = models.PositiveIntegerField(default =0)
 	
 	#def save(self, *args, **kwargs):
 		

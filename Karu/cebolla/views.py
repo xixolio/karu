@@ -122,6 +122,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
 			# ingredientLocal = IngredientLocal.objects.get(id=self.request.data['ingredientLocalId'])
 			# serializer.save(ingredientLocal=ingredientLocal)	
 
+
 class PurchaseViewSet(viewsets.ModelViewSet):
 	queryset = Purchase.objects.all()
 	serializer_class = PurchaseSerializer

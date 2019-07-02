@@ -91,10 +91,10 @@ class ItemSerializerP(serializers.ModelSerializer):
 class OrderSerializerP(serializers.ModelSerializer):
 #	algo = serializers.IntegerField()
 	items = ItemSerializerP(many=True, required=True)
-	orderPrice = serializers.IntegerField(read_only=True)
+	orderPrice = serializers.IntegerField()
 	class Meta:
 		model = Order
-		fields = ('id','orderPrice','rfID','items','ongoing')
+		fields = ('id','orderPrice','items','name')
 		
 	def validate_items(self, items):
 		if len(items) == 0:
@@ -120,9 +120,9 @@ class PurchaseSerializer(serializers.ModelSerializer):
 		
 		for order_data in orders_data:	
 		
-			items_data = order_data.pop('items')			
-			order = Order.objects.create(purchase=purchase, **order_data)
+			items_data = order_data.pop('items')	
 			orderPrice = 0
+			order = Order.objects.create(purchase=purchase, **order_data)
 			
 			for item_data in items_data:
 			
@@ -130,7 +130,9 @@ class PurchaseSerializer(serializers.ModelSerializer):
 				amount = item_data['amount']
 				orderPrice += itemPrice*amount
 				Item.objects.create(order=order,**item_data)
-				
+			
+			
+			
 			order.orderPrice = orderPrice
 			totalPrice += orderPrice
 			order.save()
@@ -143,6 +145,11 @@ class PurchaseSerializer(serializers.ModelSerializer):
 	def validate_orders(self, orders):
 		if len(orders) == 0:
 			raise serializers.ValidationError('se requiere al menos una compra')
+		totalPrice = 0
+		for order in orders:
+			totalPrice += order['orderPrice']
+		if totalPrice <= 0:
+			raise serializers.ValidationError('pero pa queee po')
 		return orders
 
 #class PurchaseSerializer(serializers.Serializer):
